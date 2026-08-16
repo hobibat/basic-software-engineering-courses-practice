@@ -1,0 +1,18 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# C++ / C Binaries
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.dll
+*.so
+
+# OS Files
+.DS_Store
+Thumbs.db
