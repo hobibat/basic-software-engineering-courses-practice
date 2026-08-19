@@ -14,32 +14,41 @@ int main(){
         char* arg[64];//stores pointers to each argument or token
 
 
-        fgets(command, sizeof(command), stdin);
+        if(fgets(command, sizeof(command), stdin)==NULL){
+            printf("\n"); 
+            break;
+        }
         command [strcspn(command, "\n")]= '\0';
-        
+
         char* portion= strtok(command, " ");//callig function once to place it on the string
         int i=0;
         while(portion !=NULL){
             arg[i]= portion;
             portion=strtok(NULL, " ");
             i++;
-        }
-        //for debugging:
-        arg[i]=NULL;
+        }arg[i]=NULL;//end of arguments indicator
+
+        //empty command handling
+        if(arg[0]==NULL) continue;
+
+        /*//for debugging:
         for(int i=0; arg[i] !=NULL; i++){
                 printf("token no.%d : %s", i+1, arg[i]);
                 printf("\n");
-        }
-        //now, excute the command
+        }*/
 
+
+        //now, excute the command
         int id=fork();
         if(id==0) {
             execvp(arg[0], arg);
-            
-
+            //error handling snnipet
+            perror("habishell");
+            exit(1);
         }
         else if(id==-1){
-            printf("fork failed!");
+            perror("fork failed!");
+            exit(1);
         }
         else{
             wait(NULL);
