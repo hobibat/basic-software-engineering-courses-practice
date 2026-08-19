@@ -7,33 +7,42 @@
 int main(){
 
     while(1){
-        printf("myshell>"); 
+        printf("habishell:> "); 
 
         //readint input
         char command[1024];
         char* arg[64];//stores pointers to each argument or token
-        char d=" ";//this is the delimiter
-
-        char arr[64]; 
-        //this i guess i will need to derefrence and store arguments not their pointers
 
 
         fgets(command, sizeof(command), stdin);
         command [strcspn(command, "\n")]= '\0';
         
-        arg[0]= strtok(command, d);//callig function once to place it on the string
+        char* portion= strtok(command, " ");//callig function once to place it on the string
         int i=0;
-        while(strtok(NULL, d) !=NULL){
-            arg[i+1]= strtok(NULL, d);
-            arr[i]=* arg[i+1];
+        while(portion !=NULL){
+            arg[i]= portion;
+            portion=strtok(NULL, " ");
             i++;
+        }
+        //for debugging:
+        arg[i]=NULL;
+        for(int i=0; arg[i] !=NULL; i++){
+                printf("token no.%d : %s", i+1, arg[i]);
+                printf("\n");
         }
         //now, excute the command
 
         int id=fork();
-        if(!id) execvp(* arg[0], arg);
+        if(id==0) {
+            execvp(arg[0], arg);
+            
+
+        }
+        else if(id==-1){
+            printf("fork failed!");
+        }
         else{
-            wait();
+            wait(NULL);
             continue;
         }
 
