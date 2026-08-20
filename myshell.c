@@ -1,7 +1,8 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-#include<unistd.h>
+#include<fcntl.h>// For open() and the flags: O_RDONLY, O_WRONLY, O_CREAT, etc.
+#include<unistd.h>// For dup(), dup2(), close(), execvp(), STDIN_FILENO, STDOUT_FILENO
 #include<sys/wait.h>
 
 int main(){
@@ -10,7 +11,8 @@ int main(){
         char cwd[1024];
         if(getcwd(cwd, sizeof(cwd))!=NULL){
             printf("%s$ habishell:> ", cwd);
-        }else{
+        }
+        else{
             //if getcwd failed for any probable reasons
             perror("habishell:>");
         }
@@ -48,6 +50,40 @@ int main(){
                 printf("token no.%d : %s", i+1, arg[i]);
                 printf("\n");
         }*/
+
+
+        //______________finding special redirecting characters______________
+
+        char* redirections[64];//array to store places of the special characters
+        int j=0;//index for that array
+        for(int i=0; arg[i] !=NULL; i++){
+            if(strcmp(arg[i], ">")==0 || strcmp(arg[i], ">>")==0 || strcmp(arg[i], "<")==0){
+                redirections[j]=arg[i]; 
+                j++;
+            }
+        }redirections[j+1]=NULL;//handling the last char
+        //ok now, i guess to start we have to prepare the files to read or write
+        //loop incase we have more than one char
+        j=0;//i want to use only one  global variable for indexes other than i 
+        while(redirections[j]!=NULL){
+            if(strcmp(redirections[i], ">")==0){
+                //writing
+                int fd=open(arg[j+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                if(fd==-1){
+                    perror("habishell:> ");
+                }
+                else{
+                    int new_fd=dup2(fd, 3);
+                    //this new fd points also to the same opened file, so we have now 3 pointing to opened file as well as the newfd
+                    if(new_fd==-1){
+                        perror("habishell:> ");//can check later what to write here
+                    }
+                }
+            }
+            j+=2;
+        }
+
+
 
 
         //if the command is cd, then we do it and continue before fork
