@@ -23,6 +23,7 @@ int main(){
         //readint input
         char command[1024];
         char* arg[64];//stores pointers to each argument or token
+        char* clean_arg[64];
 
 
         if(fgets(command, sizeof(command), stdin)==NULL){
@@ -33,7 +34,7 @@ int main(){
 
         char* portion= strtok(command, " ");//callig function once to place it on the string
         int i=0;
-        while(portion !=NULL){
+        while(portion !=NULL && i<63){
             arg[i]= portion;
             portion=strtok(NULL, " ");
             i++;
@@ -56,21 +57,43 @@ int main(){
 
         char* redirections[64];//array to store places of the special characters
         int j=0;//index for that array
+        int c=0;//index for clean args
+        int syntax_error =0;
         for(int i=0; arg[i] !=NULL; i++){
             if(strcmp(arg[i], ">")==0 || strcmp(arg[i], ">>")==0 || strcmp(arg[i], "<")==0){
-                redirections[j]=arg[i];
-                redirections[j+1]=arg[i+1]; 
-                arg[i]=NULL;//change it so in it's not counted inside the execvp call cuz it's not wanted there, NULL makes it stop btw don't forget
-                j+=2;
+                if(arg[i+1]==NULL){
+                    //user entered empty redirecting character
+                    fprintf(stderr, "habishell:> syntax error near unexpected token 'newline'\n");
+                    syntax_error=1;
+                    break;//that's insane, i forgot i was already in a loop
+                }
+                if(j<62){
+                    redirections[j]=arg[i];
+                    redirections[j+1]=arg[i+1]; 
+                    j+=2;
+                }
+                i++;//skip file name so not added to clean args
             }
-        }redirections[j]=NULL;//handling the last char
+            else{
+                if(c<63){
+                    clean_arg[c]=arg[i];
+                    c++;
+                }
+            }
+        }
+        redirections[j]=NULL;//handling the last char
+        clean_arg[c]=NULL;
+        if (syntax_error || clean_arg[0] == NULL) {
+            continue;
+        }
+        
         //ok now, i guess to start we have to prepare the files to read or write
         //loop incase we have more than one char
 
 
         //if the command is cd, then we do it and continue before fork
-        if(strcmp(arg[0], "cd")==0){
-            if(arg[1]==NULL){// no path passed means go to home directory
+        if(strcmp(clean_arg[0], "cd")==0){
+            if(clean_arg[1]==NULL){// no path passed means go to home directory
                 //
                 char* home=getenv("HOME");//form enviromen variables, return a pointer to the string holding path of home
                 if(home!=NULL){
@@ -79,7 +102,7 @@ int main(){
                 
             }
             else{
-                if(chdir(arg[1])!=0){
+                if(chdir(clean_arg[1])!=0){
                     perror("habishell:> ");
                 }
             }
@@ -90,7 +113,7 @@ int main(){
         int id=fork();
         if(id==0) {
             j=0;//i want to use only one  global variable for indexes other than i 
-            while(redirections[j]!=NULL){
+            while(redirections[j]!=NULL ){
                 if(strcmp(redirections[j], ">")==0){
                     //writing
                     int fd=open(redirections[j+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -125,7 +148,7 @@ int main(){
                     close(fd);
                 }
                 else if(strcmp(redirections[j], "<")==0){
-                    int fd=open(redirections[j+1], O_RDONLY, 0644);
+                    int fd=open(redirections[j+1], O_RDONLY);
                     if(fd==-1){
                         perror("habishell:> ");
                         exit(1);
@@ -142,7 +165,7 @@ int main(){
                 }
                 j+=2;
             }
-            execvp(arg[0], arg);
+            execvp(clean_arg[0], clean_arg);
             //error handling snnipet
             perror("habishell:> ");
             exit(1);
