@@ -58,32 +58,14 @@ int main(){
         int j=0;//index for that array
         for(int i=0; arg[i] !=NULL; i++){
             if(strcmp(arg[i], ">")==0 || strcmp(arg[i], ">>")==0 || strcmp(arg[i], "<")==0){
-                redirections[j]=arg[i]; 
-                j++;
+                redirections[j]=arg[i];
+                redirections[j+1]=arg[i+1]; 
+                arg[i]=NULL;//change it so in it's not counted inside the execvp call cuz it's not wanted there, NULL makes it stop btw don't forget
+                j+=2;
             }
-        }redirections[j+1]=NULL;//handling the last char
+        }redirections[j]=NULL;//handling the last char
         //ok now, i guess to start we have to prepare the files to read or write
         //loop incase we have more than one char
-        j=0;//i want to use only one  global variable for indexes other than i 
-        while(redirections[j]!=NULL){
-            if(strcmp(redirections[i], ">")==0){
-                //writing
-                int fd=open(arg[j+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                if(fd==-1){
-                    perror("habishell:> ");
-                }
-                else{
-                    int new_fd=dup2(fd, 3);
-                    //this new fd points also to the same opened file, so we have now 3 pointing to opened file as well as the newfd
-                    if(new_fd==-1){
-                        perror("habishell:> ");//can check later what to write here
-                    }
-                }
-            }
-            j+=2;
-        }
-
-
 
 
         //if the command is cd, then we do it and continue before fork
@@ -107,6 +89,59 @@ int main(){
         //now, excute the command
         int id=fork();
         if(id==0) {
+            j=0;//i want to use only one  global variable for indexes other than i 
+            while(redirections[j]!=NULL){
+                if(strcmp(redirections[j], ">")==0){
+                    //writing
+                    int fd=open(redirections[j+1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    if(fd==-1){
+                        perror("habishell:> ");
+                        exit(1);
+                    }
+                    else{
+                        int new_fd=dup2(fd, 1);
+                        //this new fd points also to the same opened file, so we have now 3 pointing to opened file as well as the newfd
+                        if(new_fd==-1){
+                            perror("habishell:> ");//can check later what to write here
+                            exit(1);
+                        }
+                    }
+                    close(fd);
+                }
+                else if(strcmp(redirections[j], ">>")==0){
+                    int fd=open(redirections[j+1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+                    if(fd==-1){
+                        perror("habishell:> ");
+                        exit(1);
+                    }
+                    else{
+                        int new_fd=dup2(fd, 1);
+                        //this new fd points also to the same opened file, so we have now 3 pointing to opened file as well as the newfd
+                        if(new_fd==-1){
+                            perror("habishell:> ");//can check later what to write here
+                            exit(1);
+                        }
+                    }
+                    close(fd);
+                }
+                else if(strcmp(redirections[j], "<")==0){
+                    int fd=open(redirections[j+1], O_RDONLY, 0644);
+                    if(fd==-1){
+                        perror("habishell:> ");
+                        exit(1);
+                    }
+                    else{
+                        int new_fd=dup2(fd, 0);
+                        //this new fd points also to the same opened file, so we have now 3 pointing to opened file as well as the newfd
+                        if(new_fd==-1){
+                            perror("habishell:> ");//can check later what to write here
+                            exit(1);
+                        }
+                    }
+                    close(fd);
+                }
+                j+=2;
+            }
             execvp(arg[0], arg);
             //error handling snnipet
             perror("habishell:> ");
