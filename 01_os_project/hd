@@ -1,0 +1,29 @@
+[33mcommit 482cbcdfc33b99cb5a54f7d446d611ecbfcfa1de[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: Habiba Gamal <habibagamal1910@gmail.com>
+Date:   Fri Aug 21 00:28:18 2026 +0300
+
+    this is the non finished version of the code but the skeleton isn't complete, i've done and handled opening files, changing it's fd, but i still don't know how to excute and close the files, also i have alot of bugs for sure at the current stage, so i will try to get help debugging then get a guide to proceed the rest of the steps
+
+[33mcommit b1a9aa0f59a5118897293ebb8db4e04cad2af9cf[m
+Author: Habiba Gamal <habibagamal1910@gmail.com>
+Date:   Thu Aug 20 04:35:39 2026 +0300
+
+    the polished version for the second milestone, where some edgecases are handled
+
+[33mcommit 5044f6664ff3a9931787524fbfbde047139a4900[m
+Author: Habiba Gamal <habibagamal1910@gmail.com>
+Date:   Thu Aug 20 00:59:38 2026 +0300
+
+    this is the final polished error-handled version for the basic shell loop and command excution i.e. first milestone
+
+[33mcommit 5e051826b08c4802e73170bc2e627bb7b11a0ad4[m
+Author: Habiba Gamal <habibagamal1910@gmail.com>
+Date:   Wed Aug 19 23:14:22 2026 +0300
+
+     git commit myshell.c semi neat version of the first milestone, yet it had to handle some errors that i need to learn more about before giving it the final polish
+
+[33mcommit 5dff5459b5d8577cf759890c702324af67f3447f[m
+Author: Habiba Gamal <habibagamal1910@gmail.com>
+Date:   Wed Aug 19 18:52:56 2026 +0300
+
+    this is the first undebugged version of the first and the basic milestone of my shell
