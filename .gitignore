@@ -1,0 +1,5 @@
+# compiled binaries (rebuild with: gcc myshell.c -o myshell)
+a.out
+myshell
+pro
+output/
