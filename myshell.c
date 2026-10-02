@@ -178,9 +178,6 @@ int main(){
             wait(NULL);
             continue;
         }
-
-
-
     }
 
     return 0;
